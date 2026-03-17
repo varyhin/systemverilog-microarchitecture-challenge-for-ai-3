@@ -1,4 +1,4 @@
-# SystemVerilog Microarchitecture Challenge for AI No.2. Adding the Flow Control.
+# SystemVerilog Microarchitecture Challenge for AI No.3. Adding the Division.
 
 This repository contains a new challenge to any AI software that claims to
 generate Verilog code. The challenge is based on a very typical scenario in
@@ -9,14 +9,16 @@ need to figure out the sub-block latencies and handshakes by analyzing the
 code, since a lot of code in electronic companies is not sufficiently
 documented.
 
-The SystemVerilog Microarchitecture Challenge for AI No.2 is based on the
+The SystemVerilog Microarchitecture Challenge for AI No.3 is based on the
 [SystemVerilog
 Homework](https://github.com/verilog-meetup/systemverilog-homework) project
 by [Verilog Meetup](https://verilog-meetup.com/). It also uses the source
 code of an open-source [Wally CPU](https://github.com/openhwgroup/cvw).
 
 This challenge is a sequel to the [SystemVerilog Microarchitecture Challenge for AI No.1](https://github.com/verilog-meetup/systemverilog-microarchitecture-challenge-for-ai-1)
-which was challenging to ChatGPT 4 but became less challenging when ChatGPT 5 appeared.
+and [SystemVerilog Microarchitecture Challenge for AI No.2](https://github.com/verilog-meetup/systemverilog-microarchitecture-challenge-for-ai-2).
+Challenge No.1 was challenging to ChatGPT 4 but became less challenging when ChatGPT 5 appeared.
+Challenge No.3 replaces multiplication with division in the formula, making the pipeline design more complex due to higher divider latency.
 
 ## 1. The Prompt
 
