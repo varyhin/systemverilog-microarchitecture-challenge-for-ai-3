@@ -1,4 +1,4 @@
-# Отчет: решение SystemVerilog Microarchitecture Challenge for AI #2 (modified)
+# Отчет: решение SystemVerilog Microarchitecture Challenge for AI #3 (modified SystemVerilog Microarchitecture Challenge for AI #2)
 
 ## 0. Информация о модели и ресурсах
 
