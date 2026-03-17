@@ -443,7 +443,7 @@ module testbench;
                 res_expected = $realtobits
                 (
                             $bitstoreal (a) ** 5
-                    + 0.3 * $bitstoreal (b)
+                    + 0.3 / $bitstoreal (b)
                     -       $bitstoreal (c)
                 );
 

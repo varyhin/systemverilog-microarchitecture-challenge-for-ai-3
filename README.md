@@ -21,7 +21,7 @@ which was challenging to ChatGPT 4 but became less challenging when ChatGPT 5 ap
 ## 1. The Prompt
 
 Finish the code of a pipelined block in the file challenge.sv. The block
-computes a formula "a ** 5 + 0.3 * b - c". Ready/valid handshakes for the
+computes a formula "a ** 5 + 0.3 / b - c". Ready/valid handshakes for the
 arguments and the result follow the same rules as ready/valid in AXI Stream.
 When a block is not busy, arg_rdy should be 1, it should not wait for
 arg_vld. You are not allowed to implement your own submodules or functions
