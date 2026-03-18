@@ -31,17 +31,18 @@ module challenge
 
     localparam [FLEN - 1:0] CONST_0_3 = 64'h3FD3333333333333; // 0.3 double
 
-    localparam NUM_DIV    = 5;
-    localparam FIFO_DEPTH = 32;
+    localparam NUM_DIV    = 19;   // 19 dividers for 19-cycle turnaround
+    localparam FIFO_DEPTH = 64;   // > pipeline depth (~34 cycles)
     localparam PTR_W      = $clog2(FIFO_DEPTH);
+    localparam DIV_PTR_W  = 5;    // ceil(log2(19)) = 5 bits
 
     //----------------------------------------------------------------------
-    // Front-end: 5 round-robin dividers for 0.3 / b
+    // Front-end: 19 round-robin dividers for 0.3 / b
     //----------------------------------------------------------------------
 
     // Divider slot pointers
-    reg [2:0] slot_wr_ptr;
-    reg [2:0] slot_rd_ptr;
+    reg [DIV_PTR_W - 1:0] slot_wr_ptr;
+    reg [DIV_PTR_W - 1:0] slot_rd_ptr;
 
     // Per-slot storage
     reg [FLEN - 1:0] slot_a [0:NUM_DIV - 1];
@@ -77,7 +78,7 @@ module challenge
             div_start[slot_wr_ptr] = 1;
     end
 
-    // Divider instantiation (5 instances)
+    // Divider instantiation
     genvar g;
     generate
         for (g = 0; g < NUM_DIV; g = g + 1) begin : div_inst
@@ -95,12 +96,18 @@ module challenge
         end
     endgenerate
 
+    // Pointer increment helper: modular wrap at NUM_DIV
+    function [DIV_PTR_W - 1:0] next_ptr;
+        input [DIV_PTR_W - 1:0] ptr;
+        next_ptr = (ptr == NUM_DIV - 1) ? {DIV_PTR_W{1'b0}} : ptr + {{(DIV_PTR_W-1){1'b0}}, 1'b1};
+    endfunction
+
     // Slot control logic
     integer j;
     always @(posedge clk) begin
         if (rst) begin
-            slot_wr_ptr <= 3'd0;
-            slot_rd_ptr <= 3'd0;
+            slot_wr_ptr <= '0;
+            slot_rd_ptr <= '0;
             for (j = 0; j < NUM_DIV; j = j + 1) begin
                 slot_active[j] <= 1'b0;
                 slot_done[j]   <= 1'b0;
@@ -111,8 +118,7 @@ module challenge
                 slot_a[slot_wr_ptr] <= a;
                 slot_c[slot_wr_ptr] <= c;
                 slot_active[slot_wr_ptr] <= 1'b1;
-                slot_wr_ptr <= (slot_wr_ptr == NUM_DIV - 1) ? 3'd0
-                                                            : slot_wr_ptr + 3'd1;
+                slot_wr_ptr <= next_ptr(slot_wr_ptr);
             end
 
             // Capture divider results
@@ -127,8 +133,7 @@ module challenge
             if (collect) begin
                 slot_active[slot_rd_ptr] <= 1'b0;
                 slot_done[slot_rd_ptr]   <= 1'b0;
-                slot_rd_ptr <= (slot_rd_ptr == NUM_DIV - 1) ? 3'd0
-                                                            : slot_rd_ptr + 3'd1;
+                slot_rd_ptr <= next_ptr(slot_rd_ptr);
             end
         end
     end
