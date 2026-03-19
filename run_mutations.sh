@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /root/systemverilog-microarchitecture-challenge-for-ai-2
+cd /root/systemverilog-microarchitecture-challenge-for-ai-3
 
 # Save current working solution
 cp challenge.sv challenge_working.sv
@@ -43,7 +43,7 @@ run_test() {
     rm -f mut_log.txt
 }
 
-echo "=== Mutation Testing (0.3/b division version) ==="
+echo "=== Mutation Testing (0.3/b division, FIFO=36, NUM_DIV=19) ==="
 echo ""
 
 # M1: f_add → f_sub (a5+quot → a5-quot)
@@ -68,11 +68,11 @@ run_test "M5: c delay off by 1 (c_delay[12] → c_delay[11])" \
 
 # M6: Invert arg_rdy
 run_test "M6: invert arg_rdy" \
-    "'s/assign arg_rdy = ~rst/assign arg_rdy = rst/'"
+    "'s/assign arg_rdy = !rst/assign arg_rdy = rst/'"
 
-# M7: a^3 instead of a^5 (skip mult2)
+# M7: a^3 instead of a^5 (skip mult2, use a2 instead of a4)
 run_test "M7: a^3 instead of a^5" \
-    "'s/\.a         ( a4           )/\.a         ( a2           )/'"
+    "'s/\.a         ( a4         )/\.a         ( a2         )/'"
 
 # M8: Swap sub operands
 run_test "M8: swap sub operands (c-sum instead of sum-c)" \
@@ -86,13 +86,21 @@ run_test "M9: quot delay off by 1 (quot_delay[8] → quot_delay[7])" \
 run_test "M10: f_div → f_mult (0.3/b → 0.3*b)" \
     "'s/f_div u_div/f_mult u_div/'"
 
-# M11: NUM_DIV 5 → 1 (expect timeout)
-run_test "M11: NUM_DIV 5 → 1 (timeout)" \
-    "'s/NUM_DIV    = 5/NUM_DIV    = 1/'"
+# M11: NUM_DIV 19 → 1 (expect timeout)
+run_test "M11: NUM_DIV 19 → 1 (timeout)" \
+    "'s/NUM_DIV    = 19/NUM_DIV    = 1/'"
 
 # M12: Bypass FIFO
 run_test "M12: bypass FIFO" \
-    "-e 's/assign res_vld = (fifo_count != 0);/assign res_vld = sub1_dv;/' -e 's/assign res     = fifo_mem\[fifo_rd_ptr\[PTR_W - 1:0\]\];/assign res     = final_result;/'"
+    "-e \"s/assign res_vld = (fifo_count != '0);/assign res_vld = sub1_dv;/\" -e 's/assign res     = fifo_mem\[fifo_rd_idx\];/assign res     = final_result;/'"
+
+# M13: FIFO_DEPTH too small (should break back-to-back or overflow)
+run_test "M13: FIFO_DEPTH 36 → 2 (too small)" \
+    "'s/FIFO_DEPTH = 36/FIFO_DEPTH = 2/'"
+
+# M14: Wrong CONST (0.3 → 0.5)
+run_test "M14: CONST 0.3 → 0.5" \
+    "'s/3FD3333333333333/3FE0000000000000/'"
 
 # Restore working solution
 cp challenge_working.sv challenge.sv
